@@ -1,0 +1,116 @@
+{
+    "food": [
+        "groceries",
+        "fruits_vegetables",
+        "dairy_bakery",
+        "dining_out",
+        "snacks",
+        "coffee_tea",
+        "delivery_fees",
+        "others"
+    ],
+    "transport": [
+        "fuel",
+        "public_transport",
+        "car_maintenance",
+        "car_insurance",
+        "parking_tolls",
+        "ride_sharing",
+        "car_payments",
+        "others"
+    ],
+    "housing": [
+        "rent_mortgage",
+        "property_taxes",
+        "home_insurance",
+        "repairs_maintenance",
+        "furnishings",
+        "home_improvements",
+        "others"
+    ],
+    "utilities": [
+        "electricity",
+        "gas",
+        "water",
+        "internet",
+        "phone",
+        "waste_disposal",
+        "others"
+    ],
+    "personal_care": [
+        "toiletries",
+        "hair_nails",
+        "gym_membership",
+        "cosmetics",
+        "medication_otc",
+        "spa_salon",
+        "others"
+    ],
+    "entertainment": [
+        "movies_music",
+        "streaming_services",
+        "hobbies",
+        "events_concerts",
+        "books_magazines",
+        "gaming",
+        "nightlife",
+        "others"
+    ],
+    "health": [
+        "doctor_visits",
+        "dentist",
+        "prescriptions",
+        "health_insurance",
+        "therapy",
+        "medical_supplies",
+        "others"
+    ],
+    "education": [
+        "tuition",
+        "books_supplies",
+        "student_loans",
+        "courses_workshops",
+        "school_fees",
+        "others"
+    ],
+    "clothing": [
+        "apparel",
+        "shoes",
+        "accessories",
+        "dry_cleaning",
+        "tailoring",
+        "others"
+    ],
+    "travel": [
+        "flights",
+        "accommodation",
+        "car_rental",
+        "travel_insurance",
+        "vacation_activities",
+        "luggage",
+        "others"
+    ],
+    "gifts_donations": [
+        "gifts",
+        "charity",
+        "donations",
+        "others"
+    ],
+    "financial": [
+        "loan_payments",
+        "bank_fees",
+        "investments",
+        "taxes",
+        "credit_card_payments",
+        "savings",
+        "others"
+    ],
+    "miscellaneous": [
+        "pet_supplies",
+        "subscriptions_software",
+        "home_office",
+        "postage_shipping",
+        "legal_fees",
+        "others"
+    ]
+}
