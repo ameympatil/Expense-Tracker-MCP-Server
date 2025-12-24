@@ -1,11 +1,31 @@
 from fastmcp import FastMCP
 import sqlite3
 import os
+import shutil
+import tempfile
 from datetime import datetime, timedelta, timezone
 
-# Use an environment variable for the database directory if provided, otherwise default to current directory
-DB_DIR = os.getenv("DB_DIR", os.path.dirname(__file__))
-DB_PATH = os.path.join(DB_DIR, "expenses.db")
+# Determine the database path
+# 1. Prefer DB_DIR env var
+# 2. Fallback to current directory if writable
+# 3. Fallback to temp directory (for read-only cloud filesystems)
+DB_NAME = "expenses.db"
+BASE_DIR = os.path.dirname(__file__)
+
+if os.getenv("DB_DIR"):
+    DB_PATH = os.path.join(os.getenv("DB_DIR"), DB_NAME)
+elif os.access(BASE_DIR, os.W_OK):
+    DB_PATH = os.path.join(BASE_DIR, DB_NAME)
+else:
+    temp_dir = tempfile.gettempdir()
+    DB_PATH = os.path.join(temp_dir, DB_NAME)
+    # If the database exists in the read-only source but not in temp, copy it
+    source_db = os.path.join(BASE_DIR, DB_NAME)
+    if os.path.exists(source_db) and not os.path.exists(DB_PATH):
+        try:
+            shutil.copy2(source_db, DB_PATH)
+        except Exception:
+            pass  # Keep going, init_db will create a fresh one
 CATEGORIES_PATH = os.path.join(os.path.dirname(__file__), "categories.json")
 
 mcp = FastMCP("Expense Tracker")
