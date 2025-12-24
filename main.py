@@ -3,7 +3,9 @@ import sqlite3
 import os
 from datetime import datetime, timedelta, timezone
 
-DB_PATH = os.path.join(os.path.join(os.path.dirname(__file__)), "expenses.db")
+# Use an environment variable for the database directory if provided, otherwise default to current directory
+DB_DIR = os.getenv("DB_DIR", os.path.dirname(__file__))
+DB_PATH = os.path.join(DB_DIR, "expenses.db")
 CATEGORIES_PATH = os.path.join(os.path.dirname(__file__), "categories.json")
 
 mcp = FastMCP("Expense Tracker")
