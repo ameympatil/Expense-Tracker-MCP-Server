@@ -1,10 +1,8 @@
 from fastmcp import FastMCP
-import aiosqlite
-import aiofiles
+import sqlite3
 import os
 import shutil
 import tempfile
-import asyncio
 from datetime import datetime, timedelta, timezone
 
 # Determine the database path
@@ -33,9 +31,9 @@ CATEGORIES_PATH = os.path.join(os.path.dirname(__file__), "categories.json")
 mcp = FastMCP("Expense Tracker")
 
 
-async def init_db():
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute("""
+def init_db():
+    with sqlite3.connect(DB_PATH) as c:
+        c.execute("""
         CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
@@ -45,15 +43,13 @@ async def init_db():
             note TEXT DEFAULT ''
         )
         """)
-        await db.commit()
 
 
-# Run initialization
-asyncio.run(init_db())
+init_db()
 
 
 @mcp.tool
-async def add_expense(
+def add_expense(
     amount: float,
     category: str,
     subcategory: str = "",
@@ -69,44 +65,40 @@ async def add_expense(
     if not date:
         date = now.strftime("%d-%m-%Y")
 
-    async with aiosqlite.connect(DB_PATH) as db:
-        cursor = await db.execute(
+    with sqlite3.connect(DB_PATH) as c:
+        cur = c.execute(
             """
         INSERT INTO expenses (date, amount, category, subcategory, note)
         VALUES (?, ?, ?, ?, ?)
         """,
             (date, amount, category, subcategory, note),
         )
-        await db.commit()
-        last_row_id = cursor.lastrowid
-    return {"status": "ok", "id": last_row_id}
+    return {"status": "ok", "id": cur.lastrowid}
 
 
 @mcp.tool
-async def list_expenses(start_date: str, end_date: str) -> list[dict]:
+def list_expenses(start_date: str, end_date: str) -> list[dict]:
     """
     List all expenses between start_date and end_date.
     """
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        async with db.execute(
+    with sqlite3.connect(DB_PATH) as c:
+        cur = c.execute(
             """
             SELECT * FROM expenses WHERE date BETWEEN ? AND ? ORDER BY id ASC
             """,
             (start_date, end_date),
-        ) as cursor:
-            rows = await cursor.fetchall()
-            return [dict(row) for row in rows]
+        )
+        cols = [d[0] for d in cur.description]
+        return [dict(zip(cols, row)) for row in cur.fetchall()]
 
 
 @mcp.tool
-async def summarize(start_date: str, end_date: str, category: str = None) -> list[dict]:
+def summarize(start_date: str, end_date: str, category: str = None) -> dict:
     """
     Summarize all expenses by category within an inclusive date range.
     If category is not provided, summarize all categories.
     """
-    async with aiosqlite.connect(DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
+    with sqlite3.connect(DB_PATH) as c:
         query = """
         SELECT category, SUM(amount) as total_amount
         FROM expenses
@@ -121,16 +113,16 @@ async def summarize(start_date: str, end_date: str, category: str = None) -> lis
 
         query += " GROUP BY category ORDER BY category ASC"
 
-        async with db.execute(query, params) as cursor:
-            rows = await cursor.fetchall()
-            return [dict(row) for row in rows]
+        cur = c.execute(query, params)
+        cols = [d[0] for d in cur.description]
+        return [dict(zip(cols, row)) for row in cur.fetchall()]
 
 
 @mcp.resource("expense://categories", mime_type="application/json")
-async def categories():
+def categories():
     # Read fresh each time so you can edit the file without restarting the server
-    async with aiofiles.open(CATEGORIES_PATH, "r", encoding="utf-8") as f:
-        return await f.read()
+    with open(CATEGORIES_PATH, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 if __name__ == "__main__":
